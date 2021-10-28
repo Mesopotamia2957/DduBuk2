@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Marker marker1 = new Marker();
     private Marker marker2 = new Marker();
 
+
     //Infowindow 변수 선언 및 초기화
     private InfoWindow infoWindow1 = new InfoWindow();
     private InfoWindow infoWindow2 = new InfoWindow();
