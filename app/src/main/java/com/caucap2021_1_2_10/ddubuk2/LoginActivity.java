@@ -1,85 +1,93 @@
 package com.caucap2021_1_2_10.ddubuk2;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.nhn.android.naverlogin.OAuthLogin;
-import com.nhn.android.naverlogin.OAuthLoginHandler;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.widget.Button;
+import android.widget.EditText;
+import android.telephony.SmsManager;
+import android.util.Log; //코드 흐름을 확인하기 위함
+
+
 
 public class LoginActivity extends AppCompatActivity {
 
-    LinearLayout ll_naver_login;
-    Button btn_logout;
+    private static final String TAG = "abcd";
+    EditText inputPhoneNum;
+    Button sendSMSBt;
 
-    OAuthLogin mOAuthLoginModule;
-    Context mContext;
+    EditText inputCheckNum;
+    Button checkBt;
+
+    String SMSContents = "1234";
+
+    static final int SMS_SEND_PERMISSON = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mContext = getApplicationContext();
+        inputPhoneNum = findViewById(R.id.input_phone_num);
+        sendSMSBt = findViewById(R.id.send_sms_button);
 
-        ll_naver_login = findViewById(R.id.ll_naver_login);
-        btn_logout = findViewById(R.id.btn_logout);
+        inputCheckNum = findViewById(R.id.input_check_num);
+        checkBt = findViewById(R.id.check_button);
 
-        ll_naver_login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mOAuthLoginModule = OAuthLogin.getInstance();
-                mOAuthLoginModule.init(
-                        mContext
-                        ,getString(R.string.naver_client_id)
-                        ,getString(R.string.naver_client_secret)
-                        ,getString(R.string.naver_client_name)
-                        //,OAUTH_CALLBACK_INTENT
-                        // SDK 4.1.4 버전부터는 OAUTH_CALLBACK_INTENT변수를 사용하지 않습니다.
-                );
 
-                @SuppressLint("HandlerLeak")
-                OAuthLoginHandler mOAuthLoginHandler = new OAuthLoginHandler() {
-                    @Override
-                    public void run(boolean success) {
-                        if (success) {
-                            String accessToken = mOAuthLoginModule.getAccessToken(mContext);
-                            String refreshToken = mOAuthLoginModule.getRefreshToken(mContext);
-                            long expiresAt = mOAuthLoginModule.getExpiresAt(mContext);
-                            String tokenType = mOAuthLoginModule.getTokenType(mContext);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+            Log.d(TAG, "=== sms전송을 위한 퍼미션 확인 ===" );
 
-                            Log.i("LoginData","accessToken : "+ accessToken);
-                            Log.i("LoginData","refreshToken : "+ refreshToken);
-                            Log.i("LoginData","expiresAt : "+ expiresAt);
-                            Log.i("LoginData","tokenType : "+ tokenType);
-
-                        } else {
-                            String errorCode = mOAuthLoginModule
-                                    .getLastErrorCode(mContext).getCode();
-                            String errorDesc = mOAuthLoginModule.getLastErrorDesc(mContext);
-                            Toast.makeText(mContext, "errorCode:" + errorCode
-                                    + ", errorDesc:" + errorDesc, Toast.LENGTH_SHORT).show();
-                        }
-                    };
-                };
-
-                mOAuthLoginModule.startOauthLoginActivity(LoginActivity.this, mOAuthLoginHandler);
+            // For device above MarshMallow
+            boolean permission = getWritePermission();
+            if(permission) {
+                // If permission Already Granted
+                // Send You SMS here
+                Log.d(TAG, "=== 퍼미션 허용 ===" );
             }
-        });
+        }
+        else{
+            // Send Your SMS. You don't need Run time permission
+            Log.d(TAG, "=== 퍼미션 필요 없는 버전임 ===" );
+        }
 
-        btn_logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mOAuthLoginModule.logout(mContext);
-                Toast.makeText(LoginActivity.this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+
+
     }
+
+    public boolean getWritePermission(){
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 10);
+        }
+        return hasPermission;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case 10: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    // Permission is Granted
+                    // Send Your SMS here
+                }
+            }
+        }
+    }
+
+
+
+
 }
