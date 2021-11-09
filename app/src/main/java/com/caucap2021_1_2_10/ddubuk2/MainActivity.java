@@ -1,6 +1,7 @@
 package com.caucap2021_1_2_10.ddubuk2;
 
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -26,6 +27,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import com.google.android.material.navigation.NavigationView;
 import Adapter.pointAdapter;
 import android.content.Intent;
+
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -140,7 +143,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         break;
 
                     case R.id.navigation_review:
-                        Toast.makeText(MainActivity.this, item.getTitle(), Toast.LENGTH_LONG).show();
+                        Intent reviewIntent = new Intent(getApplicationContext(), ListActivity.class);
+                        startActivity(reviewIntent);
                         break;
 
                     case R.id.navigation_item_write:
